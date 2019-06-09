@@ -2,9 +2,9 @@ import { app, BrowserWindow } from 'electron'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win : BrowserWindow | null
+let win: BrowserWindow | null
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,

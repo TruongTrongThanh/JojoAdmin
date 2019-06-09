@@ -11,12 +11,14 @@
     "importHelpers": true
   },
   "types": [
-    "node"
+    "node",
+    "firebase"
   ],
   "include": [
-    "./src/main/*"
+    "./src/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "./src/renderers"
   ]
 }

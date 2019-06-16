@@ -7,7 +7,5 @@ window.genreContextMenuResultBindEvent = (deleteListener: (genre: any) => void) 
 }
 
 window.openGenreContextMenu = (genre: any) => {
-  console.log('preload script')
-  console.log(genre)
   ipcRenderer.send('open-genre-context-menu', genre)
 }

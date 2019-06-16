@@ -11,7 +11,7 @@
     "build": "npm run build:renderer && npm run build:main",
     "start": "electron ./dist/main/main.js",
     "auto:build:renderer": "webpack --watch",
-    "lint": "tslint"
+    "lint": "tslint --fix -p tsconfig.json"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1",

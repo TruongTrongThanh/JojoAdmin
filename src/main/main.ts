@@ -6,7 +6,7 @@ import createContextMenu from './native/context-menu'
 import firebase from 'firebase'
 
 // tslint:disable
-require('electron-reload')(__dirname)
+// require('electron-reload')(__dirname)
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -18,7 +18,7 @@ function createMainWindow(path: string) {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: `${__dirname}/preload/open-context-menu.js`
+      preload: `${__dirname}/preload/index.js`
     }
   })
 

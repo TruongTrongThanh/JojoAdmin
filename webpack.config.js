@@ -8,8 +8,8 @@ module.exports = {
   entry: './src/renderers/index.ts',
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, './dist/renderers'),
-    publicPath: `${__dirname}/dist/renderers/`,
+    path: path.resolve(__dirname, './app/renderers'),
+    publicPath: `${__dirname}/app/renderers/`,
     filename: 'renderer.js'
   },
   target: 'electron-renderer',
@@ -59,8 +59,7 @@ module.exports = {
       'vue$': 'vue/dist/vue.esm.js',
       '@': path.resolve(__dirname, 'src'),
       '@Com': path.resolve(__dirname, 'src/renderers/components'),
-      '@public': path.resolve(__dirname, 'public'),
-      '@dist': path.resolve(__dirname, 'dist')
+      '@public': path.resolve(__dirname, 'public')
     }
   },
   performance: {

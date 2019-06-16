@@ -9,3 +9,8 @@ window.genreContextMenuResultBindEvent = (deleteListener: (genre: any) => void) 
 window.openGenreContextMenu = (genre: any) => {
   ipcRenderer.send('open-genre-context-menu', genre)
 }
+
+window.openGenreWindow = () => {
+  ipcRenderer.send('create-sub-window', { path: 'genre-create' })
+}
+

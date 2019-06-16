@@ -1,0 +1,15 @@
+{
+  "name": "electron-jojo-cms",
+  "version": "1.0.0",
+  "main": "main/main.js",
+  "description": "",
+  "author": "Thanh",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "firebase": "^6.1.1",
+    "jquery": "3.4.1",
+    "popper.js": "^1.14.7",
+    "tslib": "^1.10.0"
+  }
+}

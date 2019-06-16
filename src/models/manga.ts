@@ -41,6 +41,7 @@ export interface Paper {
 export interface Genre {
   name: string
   color: string
+  isCheck?: boolean
 }
 
 export interface ImageURL {

@@ -11,7 +11,17 @@ export default new Router({
     },
     {
       path: '/login',
+      name: 'login',
       component: () => import('./views/Login.vue')
+    },
+    {
+      path: '/manga-create',
+      name: 'manga-create',
+      component: () => import('./views/manga/Create.vue')
+    },
+    {
+      path: '/genre-create',
+      component: () => import('./views/manga/GenreCreate.vue')
     }
   ]
 })

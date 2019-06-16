@@ -1,21 +1,29 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, MenuItem, Menu } from 'electron'
+import { ipcMain } from 'electron'
+import { Genre } from '@/models/manga'
+import createSubWindow from './native/sub-window'
+import createContextMenu from './native/context-menu'
+import firebase from 'firebase'
+
+// tslint:disable
+require('electron-reload')(__dirname)
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null
 
-function createWindow() {
+function createMainWindow(path: string) {
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      preload: `${__dirname}/preload/open-context-menu.js`
     }
   })
 
   // and load the index.html of the app.
-  win.loadFile(`${__dirname}/../index.html`)
+  win.loadURL(`file://${__dirname}/../renderers/index.html#${path}`)
 
   // Open the DevTools.
   win.webContents.openDevTools()
@@ -29,10 +37,23 @@ function createWindow() {
   })
 }
 
+function createGenreContextMenu(e: Electron.Event, genre: Genre): Menu {
+  const deleteItem = new MenuItem({
+    id: '1',
+    label: 'Delete',
+    click: (mItem, mWin, clickEvent) => {
+      e.sender.send('genre-context-menu-click', { genre, type: 'delete' })
+    }
+  })
+  return createContextMenu(deleteItem)
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createMainWindow('manga-create')
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -47,9 +68,16 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
-    createWindow()
+    createMainWindow('manga-create')
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+ipcMain.on('create-sub-window', (e: Event, data: any) => {
+  createSubWindow(data.path, win!, 400, 400, data.scriptPath)
+})
+
+ipcMain.on('open-genre-context-menu', (e: Electron.Event, genre: any) => {
+  console.log(genre)
+  const menu = createGenreContextMenu(e, genre)
+  menu.popup()
+})

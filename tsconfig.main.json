@@ -6,19 +6,21 @@
     "noImplicitReturns": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "allowJs": true,
     "target": "esnext",
     "esModuleInterop": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "types": [
-    "node",
-    "firebase"
-  ],
   "include": [
-    "./src/**/*"
+    "./src/main/**/*",
+    "./src/types/**/*"
   ],
   "exclude": [
-    "node_modules",
-    "./src/renderers"
+    "node_modules"
   ]
 }

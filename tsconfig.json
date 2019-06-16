@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./built/",
+    "outDir": "./dist/",
     "sourceMap": true,
     "strict": true,
     "noImplicitReturns": true,
@@ -9,13 +9,15 @@
     "target": "esnext",
     "esModuleInterop": true,
     "importHelpers": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@Com/*": ["src/renderers/components/*"]
+    }
   },
-  "types": [
-    "node"
-  ],
   "include": [
-      "./src/renderers/*"
+    "./src/**/*"
   ],
   "exclude": [
     "node_modules"

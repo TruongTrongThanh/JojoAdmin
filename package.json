@@ -6,15 +6,22 @@
   "author": "Thanh",
   "license": "ISC",
   "scripts": {
-    "build-renderer": "webpack",
-    "build-main": "tsc -p ./tsconfig.main.json",
-    "build": "npm run build-renderer && npm run build-main",
-    "start": "electron ./dist/main.js",
-    "lint": "tslint --fix -p tsconfig.main.json && tslint --fix -p tsconfig.renderer.json"
+    "build:renderer": "webpack",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build": "npm run build:renderer && npm run build:main",
+    "start": "electron ./dist/main/main.js",
+    "auto:build:renderer": "webpack --watch",
+    "lint": "tslint"
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.1",
     "@types/node": "^12.0.7",
     "css-loader": "^2.1.1",
+    "dotenv-webpack": "^1.7.0",
+    "electron-reload": "^1.4.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.23.1",
     "ts-loader": "^6.0.2",
     "typescript": "^3.5.1",
     "vue-loader": "^15.7.0",
@@ -24,8 +31,11 @@
     "webpack-cli": "^3.3.3"
   },
   "dependencies": {
+    "bootstrap": "^4.3.1",
     "electron": "^5.0.3",
     "firebase": "^6.1.1",
+    "jquery": "3.4.1",
+    "popper.js": "^1.14.7",
     "vue": "^2.6.10",
     "vue-router": "^3.0.6"
   }

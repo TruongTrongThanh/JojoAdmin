@@ -1,13 +1,15 @@
 const path = require('path')
 const webpack = require('webpack')
+const DotenvPlugin = require('dotenv-webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: './src/renderers/index.ts',
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, './dist'),
-    publicPath: `${__dirname}/dist/`,
+    path: path.resolve(__dirname, './dist/renderers'),
+    publicPath: `${__dirname}/dist/renderers/`,
     filename: 'renderer.js'
   },
   target: 'electron-renderer',
@@ -21,8 +23,7 @@ module.exports = {
             // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
             // the "scss" and "sass" values for the lang attribute to the right configs here.
             // other preprocessors should work out of the box, no loader config like this necessary.
-            'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+            'scss': 'vue-style-loader!css-loader!sass-loader'
           }
           // other vue-loader options go here
         }
@@ -32,8 +33,7 @@ module.exports = {
         loader: 'ts-loader',
         exclude: /node_modules/,
         options: {
-          appendTsSuffixTo: [/\.vue$/],
-          configFile: 'tsconfig.renderer.json'
+          appendTsSuffixTo: [/\.vue$/]
         }
       },
       {
@@ -42,25 +42,37 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
+      },
+      {
+        test: /.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /.html$/,
+        loader: 'html-loader'
       }
     ]
   },
   resolve: {
     extensions: ['.ts', '.js', '.vue', '.json'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
+      '@': path.resolve(__dirname, 'src'),
+      '@Com': path.resolve(__dirname, 'src/renderers/components'),
+      '@public': path.resolve(__dirname, 'public'),
+      '@dist': path.resolve(__dirname, 'dist')
     }
-  },
-  devServer: {
-    historyApiFallback: true,
-    noInfo: true
   },
   performance: {
     hints: false
   },
   devtool: '#eval-source-map',
   plugins: [
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new HtmlWebpackPlugin({
+      template: 'index.html'
+    }),
+    new DotenvPlugin()
   ]
 }
 
@@ -68,11 +80,6 @@ if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"'
-      }
-    }),
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {

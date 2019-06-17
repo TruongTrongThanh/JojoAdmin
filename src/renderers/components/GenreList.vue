@@ -19,6 +19,9 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import * as mangaAPI from '@/apis/manga-api'
 import { Genre } from '@/models/manga'
+import ElectronWindow from '@/models/html-api'
+
+declare let window: ElectronWindow
 
 @Component
 export default class GenreList extends Vue {

@@ -19,7 +19,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import * as mangaAPI from '@/apis/manga-api'
 import { Genre } from '@/models/manga'
-import ElectronWindow from '@/models/html-api'
+import { ElectronWindow } from '@/models/html-api'
 
 declare let window: ElectronWindow
 
@@ -27,21 +27,29 @@ declare let window: ElectronWindow
 export default class GenreList extends Vue {
   @Prop(Array) list: Genre[] = []
 
-  async created() {
+  created() {
     window.genreContextMenuResultBindEvent(this.delete)
-    this.$emit('update:list', await mangaAPI.getGenreList())
+    window.updateDataListener(this.updateGenreList)
+    this.updateGenreList()
   }
 
   openContextMenu(g: Genre) {
     window.openGenreContextMenu(g)
   }
 
-  delete(g: Genre) {
-    console.log('delete test: ' + g.name)
+  async delete(g: Genre) {
+    await mangaAPI.deleteGenre(g.name)
+    const index = this.list.findIndex(genre => genre.name === g.name)
+    this.list.splice(index, 1)
+    this.$emit('update:list', this.list)
   }
 
   openGenreControl() {
     window.openGenreWindow()
+  }
+
+  async updateGenreList() {
+    this.$emit('update:list', await mangaAPI.getGenreList())
   }
 }
 </script>

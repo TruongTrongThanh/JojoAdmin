@@ -1,8 +1,8 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 
 let subWin: BrowserWindow | null
 
-export default function createSubWindow(path: string, parent: BrowserWindow, width?: number, height?: number, scriptPath?: string) {
+export default function createSubWindow(path: string, parent: BrowserWindow, width?: number, height?: number, updateDataRequest?: boolean) {
     subWin = new BrowserWindow({
       width,
       height,
@@ -11,7 +11,7 @@ export default function createSubWindow(path: string, parent: BrowserWindow, wid
       fullscreenable: false,
       modal: true,
       webPreferences: {
-        preload: scriptPath ? `${__dirname}/${scriptPath}` : undefined
+        preload: `${__dirname}/../preload/index.js`
       }
     })
     subWin.removeMenu()
@@ -19,6 +19,10 @@ export default function createSubWindow(path: string, parent: BrowserWindow, wid
     subWin.loadURL(`file://${__dirname}/../../renderers/index.html#${path}`)
 
     subWin.on('closed', () => {
+      if (updateDataRequest) {
+        console.log('bind update data close event')
+        parent.webContents.send('update-data')
+      }
       subWin = null
     })
 }

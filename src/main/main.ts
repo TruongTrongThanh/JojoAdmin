@@ -1,4 +1,4 @@
-import { app, BrowserWindow, MenuItem, Menu } from 'electron'
+import { app, BrowserWindow, MenuItem, Menu, dialog } from 'electron'
 import { ipcMain } from 'electron'
 import { Genre } from '@/models/manga'
 import createSubWindow from './native/sub-window'
@@ -6,7 +6,7 @@ import createContextMenu from './native/context-menu'
 import firebase from 'firebase'
 
 // tslint:disable
-// require('electron-reload')(__dirname)
+require('electron-reload')(__dirname)
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -73,11 +73,22 @@ app.on('activate', () => {
 })
 
 ipcMain.on('create-sub-window', (e: Event, data: any) => {
-  createSubWindow(data.path, win!, 400, 400, data.scriptPath)
+  createSubWindow(data.path, win!, 400, 400, data.updateDataRequest)
 })
 
 ipcMain.on('open-genre-context-menu', (e: Electron.Event, genre: any) => {
-  console.log(genre)
   const menu = createGenreContextMenu(e, genre)
   menu.popup()
+})
+
+ipcMain.on('show-dialog', (e: Electron.Event, data: any) => {
+  dialog.showMessageBox(BrowserWindow.fromWebContents(e.sender), {
+    title: data.title || 'Thông báo',
+    type: data.type,
+    message: data.message
+  })
+})
+
+ipcMain.on('show-error-dialog', (e: Electron.Event, err: Error) => {
+  dialog.showErrorBox(err.name, err.message)
 })

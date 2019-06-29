@@ -1,7 +1,7 @@
 import { Manga, Chapter, Paper, Genre } from '@/models/manga'
 import { Options, ChapterOptions, PaperOptions, MangaOptions } from '@/models/options'
 import firebase from 'firebase'
-import { NotFoundError } from '@/models/error'
+import { NotFoundError, DuplicateError } from '@/models/error'
 import 'firebase/firestore'
 
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
@@ -103,9 +103,16 @@ export async function getGenreList(): Promise<Genre[]> {
 }
 
 export async function addGenre(genre: Genre): Promise<void> {
-  return db.collection('genres').doc(genre.name).set({
+  const res = await db.collection('genres').doc(genre.name).get()
+  if (res.exists) throw new DuplicateError()
+
+  db.collection('genres').doc(genre.name).set({
     color: genre.color
   })
+}
+
+export async function deleteGenre(genreName: string): Promise<void> {
+  return db.collection('genres').doc(genreName).delete()
 }
 
 /***/

@@ -5,13 +5,13 @@
       <input v-model="manga.id" class="form-control" type="text">
 
       <label name="name">Tên</label>
-      <input v-model="manga.id" class="form-control" type="text">
+      <input v-model="manga.name" class="form-control" type="text">
 
       <label name="subName">Tên phụ</label>
-      <input v-model="manga.id" class="form-control" type="text">
+      <input v-model="manga.subName" class="form-control" type="text">
       
       <label name="author">Tác giả</label>
-      <input v-model="manga.id" class="form-control" type="text">
+      <input v-model="manga.author" class="form-control" type="text">
       
       <label name="banner">Hình banner</label>
       <image-input v-model="manga.banner"/>
@@ -30,6 +30,8 @@
       
       <label name="yearStart">Năm</label>
       <input v-model="manga.yearStart" class="form-control" type="text">
+      -
+      <input v-model="manga.yearEnd" class="form-control" type="text">
 
       <button class="btn btn-primary" @click.prevent="submit">Submit</button>
     </form>

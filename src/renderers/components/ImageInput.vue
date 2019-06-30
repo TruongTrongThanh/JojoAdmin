@@ -8,9 +8,9 @@
         @input="$emit('input', $event.target.value)"
       >
       <div class="input-group-append">
-        <label for="file" class="input-group-text">Generate URL from Image</label>
+        <label :for="'file-' + _uid" class="input-group-text">Generate URL from Image</label>
         <input 
-          id="file"
+          :id="'file-' + _uid"
           style="visibility:hidden;"
           type="file"
           @change="generateUrl"

@@ -8,6 +8,7 @@ type DocumentSnapshot = firebase.firestore.DocumentSnapshot
 type DocumentReference = firebase.firestore.DocumentReference
 type Query = firebase.firestore.Query
 type CollectionReference = firebase.firestore.CollectionReference
+type WriteBatch = firebase.firestore.WriteBatch
 
 const db = firebase.firestore()
 
@@ -32,7 +33,17 @@ export async function getMangaByID(ref: string | DocumentReference): Promise<Man
 }
 
 export async function addManga(manga: Manga): Promise<void> {
-  return db.collection('mangas').doc(manga.id).set({
+  const batch = db.batch()
+
+  if (manga.genres) {
+    const selectedGenreList = manga.genres.filter(g => g.isCheck)
+    for (const g of selectedGenreList) {
+      addMangaRefToGenre(manga.id, g.name, batch)
+    }
+  }
+  const mangaRef = db.collection('mangas').doc(manga.id)
+
+  batch.set(mangaRef, {
     name: manga.name,
     subName: manga.subName,
     author: manga.author,
@@ -40,12 +51,13 @@ export async function addManga(manga: Manga): Promise<void> {
     backBarImgSrc: manga.backBarImgSrc,
     chapterNumber: manga.chapterNumber,
     desc: manga.desc,
-    genres: manga.genres,
     yearStart: manga.yearStart,
     yearEnd: manga.yearEnd,
-    createdAt: Date.now,
-    modifiedAt: Date.now
+    createdAt: new Date(),
+    modifiedAt: new Date()
   })
+
+  return batch.commit()
 }
 
 export async function getChapterList(mangaRef?: string | DocumentReference, options?: ChapterOptions): Promise<Chapter[]> {
@@ -109,6 +121,22 @@ export async function addGenre(genre: Genre): Promise<void> {
   db.collection('genres').doc(genre.name).set({
     color: genre.color
   })
+}
+
+export async function addMangaRefToGenre(mangaRef: string | DocumentReference, genreName: string, batch?: WriteBatch): Promise<void> {
+  if (typeof mangaRef === 'string') {
+    mangaRef = db.collection('manga').doc(mangaRef)
+  }
+
+  const genreRef = db.collection('genres').doc(genreName)
+  const updateData = {
+    mangaList: firebase.firestore.FieldValue.arrayUnion(mangaRef)
+  }
+  if (batch) {
+    batch.update(genreRef, updateData)
+  } else {
+    genreRef.update(updateData)
+  }
 }
 
 export async function deleteGenre(genreName: string): Promise<void> {

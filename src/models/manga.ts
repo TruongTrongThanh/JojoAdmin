@@ -1,5 +1,4 @@
 type DocumentReference = firebase.firestore.DocumentReference
-type Timestamp = firebase.firestore.Timestamp
 
 export interface Manga {
   id: string
@@ -10,13 +9,15 @@ export interface Manga {
   backBarImgSrc: string
   chapterNumber: number
   transChapterNumber: number
-  chapterList: Chapter[]
   desc: string
-  genres?: Genre[]
   yearStart: number
   yearEnd: number
-  createdAt: Date | Timestamp
-  modifiedAt: Date | Timestamp
+  createdAt: Date
+  modifiedAt: Date
+
+  // Collection References
+  chapterList?: Chapter[]
+  genres?: Genre[]
 }
 export interface Chapter {
   id: string
@@ -26,8 +27,8 @@ export interface Chapter {
   mangaRef: DocumentReference
   paperListSize: number
   paperList: Paper[]
-  createdAt: Date | Timestamp
-  modifiedAt: Date | Timestamp
+  createdAt: Date
+  modifiedAt: Date
 }
 
 export interface Paper {
@@ -35,8 +36,8 @@ export interface Paper {
   index: number
   url: ImageURL
   chapterRef: DocumentReference
-  createdAt: Date | Timestamp
-  modifiedAt: Date | Timestamp
+  createdAt: Date
+  modifiedAt: Date
 }
 
 export interface Genre {

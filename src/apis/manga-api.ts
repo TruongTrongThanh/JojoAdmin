@@ -1,17 +1,18 @@
-import { Manga, Chapter, Paper } from '@/models/manga'
+import { Manga, Chapter, Paper, Genre } from '@/models/manga'
 import { Options, ChapterOptions, PaperOptions, MangaOptions } from '@/models/options'
 import firebase from 'firebase'
-import { NotFoundError } from '@/models/error'
-import { addMangaRefToGenre } from './genre-api'
+import { NotFoundError, DuplicateError } from '@/models/error'
 import 'firebase/firestore'
 
 type DocumentSnapshot = firebase.firestore.DocumentSnapshot
 type DocumentReference = firebase.firestore.DocumentReference
 type Query = firebase.firestore.Query
 type CollectionReference = firebase.firestore.CollectionReference
+type WriteBatch = firebase.firestore.WriteBatch
 
 const db = firebase.firestore()
 
+// READ operations
 export async function getMangaList(options?: MangaOptions): Promise<Manga[]> {
   const list: Manga[] = []
   let query: Query | CollectionReference = db.collection('mangas')
@@ -30,34 +31,6 @@ export async function getMangaByID(ref: string | DocumentReference): Promise<Man
   }
   const res = await ref.get()
   return convertToManga(res)
-}
-
-export async function addManga(manga: Manga): Promise<void> {
-  const batch = db.batch()
-
-  if (manga.genres) {
-    const selectedGenreList = manga.genres.filter(g => g.isCheck)
-    for (const g of selectedGenreList) {
-      addMangaRefToGenre(manga.id, g.name, batch)
-    }
-  }
-  const mangaRef = db.collection('mangas').doc(manga.id)
-
-  batch.set(mangaRef, {
-    name: manga.name,
-    subName: manga.subName,
-    author: manga.author,
-    banner: manga.banner,
-    backBarImgSrc: manga.backBarImgSrc,
-    chapterNumber: manga.chapterNumber,
-    desc: manga.desc,
-    yearStart: manga.yearStart,
-    yearEnd: manga.yearEnd,
-    createdAt: new Date(),
-    modifiedAt: new Date()
-  })
-
-  return batch.commit()
 }
 
 export async function getChapterList(mangaRef?: string | DocumentReference, options?: ChapterOptions): Promise<Chapter[]> {
@@ -102,6 +75,71 @@ export async function getPaperList(chapterRef?: string | DocumentReference, opti
     list.push(convertToPaper(snapshot))
   })
   return list
+}
+
+export async function getGenreList(): Promise<Genre[]> {
+  const list: Genre[] = []
+  const query: Query | CollectionReference = db.collection('genres')
+  const res = await query.get()
+  res.forEach(snapshot => {
+    list.push(convertToGenre(snapshot))
+  })
+  return list
+}
+
+// WRITE operations
+export async function addManga(manga: Manga): Promise<void> {
+  const batch = db.batch()
+
+  if (manga.genres) {
+    const selectedGenreList = manga.genres.filter(g => g.isCheck)
+    for (const g of selectedGenreList) {
+      addMangaRefToGenre(manga.id, g.name, batch)
+    }
+  }
+  const mangaRef = db.collection('mangas').doc(manga.id)
+
+  batch.set(mangaRef, {
+    name: manga.name,
+    subName: manga.subName,
+    author: manga.author,
+    banner: manga.banner,
+    backBarImgSrc: manga.backBarImgSrc,
+    chapterNumber: manga.chapterNumber,
+    desc: manga.desc,
+    yearStart: manga.yearStart,
+    yearEnd: manga.yearEnd,
+    createdAt: new Date(),
+    modifiedAt: new Date()
+  })
+
+  return batch.commit()
+}
+
+export async function addGenre(genre: Genre): Promise<void> {
+  const res = await db.collection('genres').doc(genre.name).get()
+  if (res.exists) throw new DuplicateError()
+
+  db.collection('genres').doc(genre.name).set({
+    color: genre.color
+  })
+}
+
+export async function addMangaRefToGenre(mangaID: string, genreName: string, batch?: WriteBatch): Promise<void> {
+  const mangaRef = db.collection('manga').doc(mangaID)
+  const genreRef = db.collection('genres').doc(genreName)
+  const updateData = {
+    mangaList: firebase.firestore.FieldValue.arrayUnion(mangaRef)
+  }
+  if (batch) {
+    batch.update(genreRef, updateData)
+  } else {
+    genreRef.update(updateData)
+  }
+}
+
+export async function deleteGenre(genreName: string): Promise<void> {
+  return db.collection('genres').doc(genreName).delete()
 }
 
 /***/
@@ -155,6 +193,15 @@ function convertToPaper(doc: DocumentSnapshot): Paper {
     chapterRef: data.chapterRef,
     createdAt: data.createdAt.toDate(),
     modifiedAt: data.modifiedAt.toDate()
+  }
+}
+
+function convertToGenre(doc: DocumentSnapshot): Genre {
+  const data = doc.data()
+  if (!data) throw new NotFoundError('Genre not found')
+  return {
+    name: doc.id,
+    color: data.color
   }
 }
 

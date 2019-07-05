@@ -77,9 +77,12 @@ export async function getPaperList(chapterRef?: string | DocumentReference, opti
   return list
 }
 
-export async function getGenreList(): Promise<Genre[]> {
+export async function getGenreList(fromManga?: string | DocumentReference): Promise<Genre[]> {
   const list: Genre[] = []
-  const query: Query | CollectionReference = db.collection('genres')
+  let query: Query | CollectionReference = db.collection('genres')
+  if (fromManga) {
+    query = query.where('mangaList', 'array-contains', fromManga)
+  }
   const res = await query.get()
   res.forEach(snapshot => {
     list.push(convertToGenre(snapshot))
@@ -126,7 +129,7 @@ export async function addGenre(genre: Genre): Promise<void> {
 }
 
 export async function addMangaRefToGenre(mangaID: string, genreName: string, batch?: WriteBatch): Promise<void> {
-  const mangaRef = db.collection('manga').doc(mangaID)
+  const mangaRef = db.collection('mangas').doc(mangaID)
   const genreRef = db.collection('genres').doc(genreName)
   const updateData = {
     mangaList: firebase.firestore.FieldValue.arrayUnion(mangaRef)

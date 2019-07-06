@@ -145,6 +145,71 @@ export async function deleteGenre(genreName: string): Promise<void> {
   return db.collection('genres').doc(genreName).delete()
 }
 
+export async function addChapter(chapter: Chapter, mangaID: string, paperList: Paper[]): Promise<void> {
+  const batch = db.batch()
+  const ref = db.collection('chapters').doc(chapter.id)
+  const mangaRef = db.collection('mangas').doc(mangaID)
+
+  batch.set(ref, {
+    id: chapter.id,
+    name: chapter.name,
+    cardImgSrc: chapter.cardImgSrc,
+    mangaRef,
+    createdAt: new Date(),
+    modifiedAt: new Date()
+  })
+  countChapter(chapter.id, batch)
+
+  for (const p of paperList) {
+    addPaper(p, ref, mangaID, batch)
+  }
+
+  batch.commit()
+}
+
+export async function addPaper(paper: Paper, chapterRef: string | DocumentReference, mangaID: string, batch?: WriteBatch) {
+  const paperRef = db.collection('papers').doc()
+  if (typeof chapterRef === 'string') {
+    chapterRef = db.collection('chapters').doc(chapterRef)
+  }
+  const val = {
+    index: paper.index,
+    url: paper.url,
+    chapterRef,
+    createdAt: new Date(),
+    modifiedAt: new Date()
+  }
+  if (!batch) {
+    batch = db.batch()
+    batch.set(paperRef, val)
+    countPaper(mangaID, chapterRef.id, batch)
+    batch.commit()
+  } else {
+    batch.set(paperRef, val)
+    countPaper(mangaID, chapterRef.id, batch)
+  }
+}
+
+export async function countChapter(mangaID: string, batch?: WriteBatch, amount?: number) {
+  const ref = db.collection('count').doc(mangaID)
+  const val = firebase.firestore.FieldValue.increment(amount || 1)
+  if (batch) {
+    batch.set(ref, { amountOfChapter: val })
+  } else {
+    ref.set({ amountOfChapter: val })
+  }
+}
+
+export async function countPaper(mangaID: string, chapterID: string, batch?: WriteBatch, amount?: number) {
+  const ref = db.collection('chapterCount').doc(mangaID).collection('paperCount').doc(chapterID)
+  const val = firebase.firestore.FieldValue.increment(amount || 1)
+  if (batch) {
+    batch.set(ref, { amountOfPaper: val })
+  } else {
+    ref.set({ amountOfPaper: val })
+  }
+}
+
 /***/
 /* Internal functions */
 /***/
@@ -163,6 +228,7 @@ function convertToManga(doc: DocumentSnapshot): Manga {
     chapterList: [],
     desc: data.desc,
     genres: data.genres || [],
+    colorTheme: data.colorTheme,
     yearStart: data.yearStart,
     yearEnd: data.yearEnd || -1,
     createdAt: data.createdAt.toDate(),
@@ -175,7 +241,6 @@ function convertToChapter(doc: DocumentSnapshot): Chapter {
   if (!data) throw new NotFoundError('Chapter not found')
   return {
     id: doc.id,
-    index: data.index,
     name: data.name,
     cardImgSrc: data.cardImgSrc,
     mangaRef: data.mangaRef,

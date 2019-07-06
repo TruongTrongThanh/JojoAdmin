@@ -21,7 +21,7 @@ export default new Router({
     },
     {
       path: '/genre-create',
-      component: () => import('./views/manga/GenreCreate.vue')
+      component: () => import('./views/manga/genre/Create.vue')
     }
   ]
 })

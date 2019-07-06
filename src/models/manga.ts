@@ -10,6 +10,7 @@ export interface Manga {
   chapterNumber: number
   transChapterNumber: number
   desc: string
+  colorTheme: string
   yearStart: number
   yearEnd: number
   createdAt: Date
@@ -21,18 +22,19 @@ export interface Manga {
 }
 export interface Chapter {
   id: string
-  index: number
   name: string
   cardImgSrc: string
-  mangaRef: DocumentReference
-  paperListSize: number
-  paperList: Paper[]
+  mangaRef?: DocumentReference
+  paperListSize?: number
   createdAt: Date
   modifiedAt: Date
+
+  // Collection References
+  paperList?: Paper[]
 }
 
 export interface Paper {
-  id: string
+  id?: string
   index: number
   url: ImageURL
   chapterRef: DocumentReference

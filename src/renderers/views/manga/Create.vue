@@ -27,6 +27,9 @@
       
       <label name="genres">Thể loại</label>
       <genre-list :list.sync="manga.genres"/>
+
+      <label name="theme">Màu chủ đạo</label>
+      <input v-model="manga.colorTheme" class="form-control" type="color">
       
       <label name="yearStart">Năm</label>
       <input v-model="manga.yearStart" class="form-control" type="text">
@@ -61,9 +64,9 @@ export default class MangaCreate extends Vue {
     backBarImgSrc: '',
     chapterNumber: 0,
     transChapterNumber: 0,
-    chapterList: [],
     desc: '',
     genres: [],
+    colorTheme: '',
     yearStart: 0,
     yearEnd: 0,
     createdAt: new Date(),
